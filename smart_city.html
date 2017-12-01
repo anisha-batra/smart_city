@@ -1,0 +1,140 @@
+<html>
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
+        crossorigin="anonymous">
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['bar'] });
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart_TodaysTrafficByTime);
+        google.charts.setOnLoadCallback(drawChart_TrafficByDayOfWeek);
+        google.charts.setOnLoadCallback(drawChart_TrafficByMonth);
+
+        function drawChart_TodaysTrafficByTime() {
+            var data = google.visualization.arrayToDataTable([
+                ['Time', 'Cars', 'Pedestrains'],
+                ['00:00', 218, 102],
+                ['01:00', 167, 246],
+                ['02:00', 567, 165],
+                ['03:00', 581, 134],
+                ['04:00', 160, 360],
+                ['05:00', 553, 319],
+                ['06:00', 246, 47],
+                ['07:00', 814, 366],
+                ['08:00', 163, 96],
+                ['09:00', 355, 486],
+                ['10:00', 820, 26],
+                ['11:00', 356, 326],
+                ['12:00', 229, 9],
+                ['13:00', 295, 39],
+                ['14:00', 544, 333],
+                ['15:00', 303, 311],
+                ['16:00', 456, 51],
+                ['17:00', 415, 243],
+                ['18:00', 383, 114],
+                ['19:00', 673, 96],
+                ['20:00', 472, 356],
+                ['21:00', 189, 333],
+                ['22:00', 932, 196],
+                ['23:00', 642, 310]
+            ]);
+
+            var options = {
+                chart: {
+                    title: 'Todays Traffic',
+                    subtitle: 'Hourly Cars and Pedestrians Count, as on: Wednesday, September 27, 2017',
+                }
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('chart_todays_traffic_by_time'));
+
+            chart.draw(data, google.charts.Bar.convertOptions(options));
+        }
+
+        function drawChart_TrafficByDayOfWeek() {
+            var data = google.visualization.arrayToDataTable([
+                ['Day', 'Cars', 'Pedestrains'],
+                ['Sunday', 100, 47],
+                ['Monday', 190, 102],
+                ['Tuesday', 187, 146],
+                ['Wednesday', 267, 165],
+                ['Thursday', 281, 134],
+                ['Friday', 160, 150],
+                ['Saturday', 125, 129]
+            ]);
+
+            var options = {
+                chart: {
+                    title: 'Weekly Traffic',
+                    subtitle: 'Weekly Cars and Pedestrians Count, for week starting: September 24, 2017',
+                }
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('chart_todays_traffic_by_day_of_week'));
+
+            chart.draw(data, google.charts.Bar.convertOptions(options));
+        }
+
+        function drawChart_TrafficByMonth() {
+
+            var data = google.visualization.arrayToDataTable([
+                ['Traffic', 'Monthly Count'],
+                ['Cars', 350],
+                ['Pedestrians', 250],
+            ]);
+
+            var options = {
+                title: 'Monthly Traffic'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart_traffic_by_month'));
+
+            chart.draw(data, options);
+        }
+    </script>
+
+
+</head>
+
+<body>
+    <div class="row">
+        <div class="col" style="text-align: center;">
+            <h1>SMART CITY - AI Based Traffic Monitoring System</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div id="chart_todays_traffic_by_day_of_week" style="height:350px;"></div>
+
+        </div>
+        <div class="col-4">
+            <div id="piechart_traffic_by_month" style="height:350px;"></div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col">
+            <div id="chart_todays_traffic_by_time" style="height:350px;"></div>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+        crossorigin="anonymous"></script>
+
+
+</body>
+
+</html>
