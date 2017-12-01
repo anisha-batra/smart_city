@@ -17,6 +17,11 @@ var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://localhost:27017/smart_city';
 
+if (process.argv.length > 2 && process.argv[2] === "production") {
+    console.log('Using AWS Settings for MongoDB Connection')
+    url = 'mongodb://awsuser:demo123@localhost:27017/smart_city';
+}
+
 // ------------------------------------------------------------------
 // WEB SERVICE - ADD INTERSECTION
 //               (Add Information About An Intersection)
