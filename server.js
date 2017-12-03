@@ -98,21 +98,21 @@ app.get('/getIntersectionByName/:intersectionName', function (req, res) {
 //               (Create One Record Per Detection)
 //               Foreign Key : Intersection Name
 // ------------------------------------------------------------------
-app.post('/addDetection', function (req, res) {
+app.post('/addDetectedTraffic', function (req, res) {
 
-    console.log('Executing Web Service: Add Detection');
+    console.log('Executing Web Service: Add Detected Traffic');
 
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     var intersectionName = req.body.intersectionName;
-    var detectedObject = req.body.detectedObject;
+    var detectedTrafficType = req.body.detectedTrafficType;
     var detectedOn = req.body.detectionTimeStamp;
 
     var record = {
-        "intersectionName": req.body.intersectionName,
-        "detectedObjectType": req.body.detectedObject,
-        "detectedOn": req.body.detectedOn
+        "intersectionName"   : req.body.intersectionName,
+        "detectedTrafficType": req.body.detectedTrafficType,
+        "detectedOn"         : req.body.detectedOn
     };
 
     MongoClient.connect(url, function (err, db) {
@@ -127,9 +127,9 @@ app.post('/addDetection', function (req, res) {
 });
 
 // ------------------------------------------------------------------
-// WEB SERVICE - GET ALL DETECTIONS
+// WEB SERVICE - GET ALL TRAFFIC DETECTIONS
 // ------------------------------------------------------------------
-app.get('/getAllDetections', function (req, res) {
+app.get('/getAllTrafficDetections', function (req, res) {
     console.log('Executing Web Service: Get All Detections');
 
     res.header("Access-Control-Allow-Origin", "*");
@@ -148,21 +148,21 @@ app.get('/getAllDetections', function (req, res) {
 });
 
 // ------------------------------------------------------------------
-// WEB SERVICE - GET ALL DETECTIONS OF TYPE
+// WEB SERVICE - GET ALL DETECTIONS OF TRAFFIC TYPE
 // ------------------------------------------------------------------
-app.get('/getAllDetectionsOfType/:objectType', function (req, res) {
+app.get('/getAllDetectionsOfType/:trafficType', function (req, res) {
     console.log('Executing Web Service: Get All Detections Of Type');
 
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-    var objectType = req.params.objectType;
+    var trafficType = req.params.trafficType;
 
     MongoClient.connect(url, function (err, db) {
         assert.equal(null, err);
-        db.collection('intersection_traffic').find({ 'detectedObjectType': objectType }).toArray(function (err, arrayOfDocs) {
+        db.collection('intersection_traffic').find({ 'detectedTrafficType': trafficType }).toArray(function (err, arrayOfDocs) {
             assert.equal(err, null);
-            console.log("- All Detection Of Type = " + objectType + ": " + arrayOfDocs);
+            console.log("- All Detection Of Type = " + trafficType + ": " + arrayOfDocs);
 
             res.setHeader('Content-Type', 'application/json');
             res.json(arrayOfDocs);
@@ -171,7 +171,7 @@ app.get('/getAllDetectionsOfType/:objectType', function (req, res) {
 });
 
 // ------------------------------------------------------------------
-// WEB SERVICE - GET ALL DETECTIONS AT INTERSECTION
+// WEB SERVICE - GET ALL DETECTIONS AT SPECIFIED INTERSECTION
 // ------------------------------------------------------------------
 app.get('/getAllDetectionsAtIntersection/:intersectionName', function (req, res) {
     console.log('Executing Web Service: Get All Detections At Intersection');
@@ -196,20 +196,20 @@ app.get('/getAllDetectionsAtIntersection/:intersectionName', function (req, res)
 // ------------------------------------------------------------------
 // WEB SERVICE - GET ALL DETECTIONS OF TYPE AT INTERSECTION
 // ------------------------------------------------------------------
-app.get('/getAllDetectionsOfTypeAtIntersection/:objectType/:intersectionName', function (req, res) {
+app.get('/getAllDetectionsOfTypeAtIntersection/:trafficType/:intersectionName', function (req, res) {
     console.log('Executing Web Service: Get All Detections At Intersection');
 
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-    var objectType = req.params.objectType;
+    var trafficType = req.params.trafficType;
     var intersectionName = req.params.intersectionName;
 
     MongoClient.connect(url, function (err, db) {
         assert.equal(null, err);
-        db.collection('intersection_traffic').find({ 'detectedObjectType': objectType, 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
+        db.collection('intersection_traffic').find({ 'detectedTrafficType': trafficType, 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
             assert.equal(err, null);
-            console.log("- All Detections Of Type = " + objectType + " At Intersection = " + intersectionName + ": " + arrayOfDocs);
+            console.log("- All Detections Of Type = " + trafficType + " At Intersection = " + intersectionName + ": " + arrayOfDocs);
 
             res.setHeader('Content-Type', 'application/json');
             res.json(arrayOfDocs);
