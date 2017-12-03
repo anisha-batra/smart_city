@@ -34,9 +34,9 @@ app.post('/addIntersection', function (req, res) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     var record = {
-        "intersectionName": req.body.intersectionName,
-        "latitude": req.body.intersectionLatitude,
-        "longitude": req.body.IntersectionLongitude
+        "intersectionName": req.body.name,
+        "latitude": req.body.latitude,
+        "longitude": req.body.longitude
     };
 
     MongoClient.connect(url, function (err, db) {
