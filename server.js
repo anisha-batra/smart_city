@@ -112,7 +112,8 @@ app.post('/addDetectedTraffic', function (req, res) {
     var record = {
         "intersectionName"   : req.body.intersectionName,
         "detectedTrafficType": req.body.detectedTrafficType,
-        "detectedOn"         : req.body.detectedOn
+        "detectedOn"         : req.body.detectedOn,
+        "carQuantity"        : req.body.carQuantity
     };
 
     MongoClient.connect(url, function (err, db) {
