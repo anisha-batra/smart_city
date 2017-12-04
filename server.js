@@ -254,7 +254,7 @@ app.get('/forecast', function (req, res) {
             assert.equal(err, null);
             console.log("- All Detecttion: " + arrayOfDocs);
 
-            var t = new timeseries.main(timeseries.adapter.fromDB(data, {
+            var t = new timeseries.main(timeseries.adapter.fromDB(arrayOfDocs, {
                 date: 'detectedOn',     // Name of the property containing the Date (must be compatible with new Date(date) )
                 value: 'carQuantity'     // Name of the property containign the value. here we'll use the "close" price.
             }));
