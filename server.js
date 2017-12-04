@@ -251,11 +251,10 @@ app.get('/forecast/:intersectionName', function (req, res) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-    var intersectionName = req.params.intersectionName;
-    var searchFilters = {
+    var searchFilters = {};
 
-    };
-    if (intersectionName != null) {
+    var intersectionName = req.params.intersectionName;
+    if (intersectionName != 'all') {
         searchFilters['intersectionName'] = intersectionName;
     }
 
