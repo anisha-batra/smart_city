@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var timeseries = require("timeseries-analysis");
 
 //support parsing of application/json type post data
 var bodyParser = require('body-parser')
@@ -110,10 +111,10 @@ app.post('/addDetectedTraffic', function (req, res) {
     var detectedOn = req.body.detectionTimeStamp;
 
     var record = {
-        "intersectionName"   : req.body.intersectionName,
+        "intersectionName": req.body.intersectionName,
         "detectedTrafficType": req.body.detectedTrafficType,
-        "detectedOn"         : req.body.detectedOn,
-        "carQuantity"        : req.body.carQuantity
+        "detectedOn": req.body.detectedOn,
+        "carQuantity": req.body.carQuantity
     };
 
     MongoClient.connect(url, function (err, db) {
@@ -239,6 +240,37 @@ app.get('/reset', function (req, res) {
     });
 
     res.send({});
+});
+
+app.get('/forecast', function (req, res) {
+    console.log('Executing Web Service: Get Forecast');
+
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+    MongoClient.connect(url, function (err, db) {
+        assert.equal(null, err);
+        db.collection('intersection_traffic').find({}).toArray(function (err, arrayOfDocs) {
+            assert.equal(err, null);
+            console.log("- All Detecttion: " + arrayOfDocs);
+
+            var t = new timeseries.main(timeseries.adapter.fromDB(data, {
+                date: 'detectedOn',     // Name of the property containing the Date (must be compatible with new Date(date) )
+                value: 'carQuantity'     // Name of the property containign the value. here we'll use the "close" price.
+            }));
+
+            // We are going to use the past 20 datapoints to predict the n+1 value, with an AR degree of 5 (default)
+            // The default method used is Max Entropy
+            t.sliding_regression_forecast({ sample: 20, degree: 5, method: 'ARLeastSquare' });
+
+            // Now we chart the results, comparing the the original data.
+            // Since we are using the past 20 datapoints to predict the next one, the forecasting only start at datapoint #21. To show that on the chart, we are displaying a red dot at the #21st datapoint:
+            var chart_url = t.chart({ main: true, points: [{ color: 'ff0000', point: 21, serie: 0 }] });
+
+            res.setHeader('Content-Type', 'application/json');
+            res.json({"url": chart_url});
+        });
+    });
 });
 
 // Start Web Server
