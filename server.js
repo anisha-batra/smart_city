@@ -221,29 +221,6 @@ app.get('/getAllDetectionsOfTypeAtIntersection/:trafficType/:intersectionName', 
 });
 
 // ------------------------------------------------------------------
-// WEB SERVICE - RESET
-//               (Delete All Data)
-// ------------------------------------------------------------------
-app.get('/reset', function (req, res) {
-    console.log('Executing WebService: reset');
-
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-
-    MongoClient.connect(url, function (err, db) {
-        assert.equal(null, err);
-        db.collection('intersections').remove();
-    });
-
-    MongoClient.connect(url, function (err, db) {
-        assert.equal(null, err);
-        db.collection('intersection_traffic').remove();
-    });
-
-    res.send({});
-});
-
-// ------------------------------------------------------------------
 // WEB SERVICE - FORECAST
 // ------------------------------------------------------------------
 app.get('/forecast/:intersectionName', function (req, res) {
@@ -274,7 +251,7 @@ app.get('/forecast/:intersectionName', function (req, res) {
                 value: 'peopleQuantity'     // Name of the property containign the value. here we'll use the "close" price.
             }));
 
-            var sampleSize = Math.floor(arrayOfDocs * 0.75);
+            var sampleSize = Math.floor(arrayOfDocs.length * 0.75);
 
             // We are going to use the past 20 datapoints to predict the n+1 value, with an AR degree of 5 (default)
             // The default method used is Max Entropy
@@ -297,6 +274,29 @@ app.get('/forecast/:intersectionName', function (req, res) {
             res.json(resposeData);
         });
     });
+});
+
+// ------------------------------------------------------------------
+// WEB SERVICE - RESET
+//               (Delete All Data)
+// ------------------------------------------------------------------
+app.get('/reset', function (req, res) {
+    console.log('Executing WebService: reset');
+
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+    MongoClient.connect(url, function (err, db) {
+        assert.equal(null, err);
+        db.collection('intersections').remove();
+    });
+
+    MongoClient.connect(url, function (err, db) {
+        assert.equal(null, err);
+        db.collection('intersection_traffic').remove();
+    });
+
+    res.send({});
 });
 
 // Public folder
