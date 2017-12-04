@@ -267,8 +267,10 @@ app.get('/forecast', function (req, res) {
             // Since we are using the past 20 datapoints to predict the next one, the forecasting only start at datapoint #21. To show that on the chart, we are displaying a red dot at the #21st datapoint:
             var chart_url = t.chart({ main: true, points: [{ color: 'ff0000', point: 21, serie: 0 }] });
 
+            //console.log(JSON.stringify(t));
+
             res.setHeader('Content-Type', 'application/json');
-            res.json({"url": chart_url});
+            res.json(t);
         });
     });
 });
