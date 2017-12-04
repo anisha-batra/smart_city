@@ -254,23 +254,34 @@ app.get('/forecast', function (req, res) {
             assert.equal(err, null);
             console.log("- All Detecttion: " + arrayOfDocs);
 
-            var t = new timeseries.main(timeseries.adapter.fromDB(arrayOfDocs, {
+            var taCars = new timeseries.main(timeseries.adapter.fromDB(arrayOfDocs, {
                 date: 'detectedOn',     // Name of the property containing the Date (must be compatible with new Date(date) )
                 value: 'carQuantity'     // Name of the property containign the value. here we'll use the "close" price.
+            }));
+            var taPeople = new timeseries.main(timeseries.adapter.fromDB(arrayOfDocs, {
+                date: 'detectedOn',     // Name of the property containing the Date (must be compatible with new Date(date) )
+                value: 'peopleQuantity'     // Name of the property containign the value. here we'll use the "close" price.
             }));
 
             // We are going to use the past 20 datapoints to predict the n+1 value, with an AR degree of 5 (default)
             // The default method used is Max Entropy
-            t.sliding_regression_forecast({ sample: 10, degree: 5, method: 'ARLeastSquare' });
+            taCars.sliding_regression_forecast({ sample: 10, degree: 5, method: 'ARLeastSquare' });
+            taPeople.sliding_regression_forecast({ sample: 10, degree: 5, method: 'ARLeastSquare' });
 
             // Now we chart the results, comparing the the original data.
             // Since we are using the past 20 datapoints to predict the next one, the forecasting only start at datapoint #21. To show that on the chart, we are displaying a red dot at the #21st datapoint:
-            var chart_url = t.chart({ main: true, points: [{ color: 'ff0000', point: 21, serie: 0 }] });
+            // var chart_url = taCars.chart({ main: true, points: [{ color: 'ff0000', point: 21, serie: 0 }] });
 
             //console.log(JSON.stringify(t));
 
+            var resposeData = {
+                "intersectionName": null,
+                "cars": taCars,
+                "people": taPeople
+            };
+
             res.setHeader('Content-Type', 'application/json');
-            res.json(t);
+            res.json(resposeData);
         });
     });
 });
