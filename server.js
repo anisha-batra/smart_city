@@ -261,7 +261,7 @@ app.get('/forecast', function (req, res) {
 
             // We are going to use the past 20 datapoints to predict the n+1 value, with an AR degree of 5 (default)
             // The default method used is Max Entropy
-            t.sliding_regression_forecast({ sample: 20, degree: 5, method: 'ARLeastSquare' });
+            t.sliding_regression_forecast({ sample: 10, degree: 5, method: 'ARLeastSquare' });
 
             // Now we chart the results, comparing the the original data.
             // Since we are using the past 20 datapoints to predict the next one, the forecasting only start at datapoint #21. To show that on the chart, we are displaying a red dot at the #21st datapoint:
