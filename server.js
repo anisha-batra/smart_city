@@ -242,15 +242,26 @@ app.get('/reset', function (req, res) {
     res.send({});
 });
 
-app.get('/forecast', function (req, res) {
+// ------------------------------------------------------------------
+// WEB SERVICE - FORECAST
+// ------------------------------------------------------------------
+app.get('/forecast/:intersectionName', function (req, res) {
     console.log('Executing Web Service: Get Forecast');
 
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
+    var intersectionName = req.params.intersectionName;
+    var searchFilters = {
+
+    };
+    if (intersectionName != null) {
+        searchFilters['intersectionName'] = intersectionName;
+    }
+
     MongoClient.connect(url, function (err, db) {
         assert.equal(null, err);
-        db.collection('intersection_traffic').find({}).toArray(function (err, arrayOfDocs) {
+        db.collection('intersection_traffic').find(searchFilters).toArray(function (err, arrayOfDocs) {
             assert.equal(err, null);
             console.log("- All Detecttion: " + arrayOfDocs);
 

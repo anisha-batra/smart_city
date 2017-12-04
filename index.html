@@ -35,12 +35,17 @@
 
   <script type="text/javascript">
     var webServicesURL = "http://ec2-13-57-24-156.us-west-1.compute.amazonaws.com:3000";
+    var intersectionName = null;
     var googleMap;
 
     $(document).ready(function () {
       google.charts.load('current', { 'packages': ['line'] });
       google.charts.setOnLoadCallback(drawGoogleCharts);
     });
+
+    $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+      drawGoogleCharts();
+    })
 
     function initMap() {
       var uluru = { lat: 37.33765, lng: -121.887466 };
@@ -71,7 +76,8 @@
 
           google.maps.event.addListener(marker, 'click', function (marker, i) {
             return function () {
-              plotIntersectionTrafficDataAtSpecifiedIntersection(marker.title);
+              intersectionName = marker.title;
+              drawGoogleCharts();
             }
           }(marker, i));
 
@@ -88,65 +94,106 @@
     }
 
     function drawGoogleCharts() {
-      plotAllIntersectionTrafficData();
+      plotIntersectionTrafficData();
+      plotIntersectionTrafficForecastsData();
     }
 
-    function plotAllIntersectionTrafficData() {
-      $.getJSON(webServicesURL + "/getAllTrafficDetections", function (data) {
-        plotTrafficIntersectionData(data);
-      });
-    }
-
-    function plotIntersectionTrafficDataAtSpecifiedIntersection(intersectionName) {
-      $.getJSON(webServicesURL + "/getAllDetectionsAtIntersection/" + intersectionName, function (data) {
-        plotTrafficIntersectionData(data);
-      });
-    }
-
-    function plotTrafficIntersectionData(arrOfIntersectionTraffic) {
-      var data = new google.visualization.DataTable();
-      data.addColumn('string', 'Time');
-      data.addColumn('number', 'Num of Cars');
-      data.addColumn('number', 'Num of Pedestrians');
-
-      for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
-        var intersectionTraffic = arrOfIntersectionTraffic[i];
-        var detectionTime = intersectionTraffic.detectedOn;
-        var detectedCarsCount = intersectionTraffic.carQuantity;
-        var detectedPeopleCount = 0; //intersectionTraffic.peopleQuantity;
-
-        data.addRow([detectionTime, detectedCarsCount, detectedPeopleCount]);
+    function plotIntersectionTrafficData() {
+      // for all intersections
+      var url = webServicesURL + "/getAllTrafficDetections";
+      if (intersectionName != null) {
+        // for specific intersection
+        url = webServicesURL + "/getAllDetectionsAtIntersection/" + intersectionName
       }
 
-      var options = {
-        chart: {
-          title: 'Box Office Earnings in First Two Weeks of Opening',
-          subtitle: 'in millions of dollars (USD)'
-        },
-        width: '100%',
-        height: 300
-      };
+      $('#nav-dashboard-tab').text('Traffic Activity Dashboard');
+      if (intersectionName != null) {
+        $('#nav-dashboard-tab').text('Traffic Activity Dashboard for "' + intersectionName + '"');
+      }
 
-      var chart = new google.charts.Line(document.getElementById('chart_time_series'));
+      $.getJSON(url, function (arrOfIntersectionTraffic) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Time');
+        data.addColumn('number', 'Num of Cars');
+        data.addColumn('number', 'Num of Pedestrians');
 
-      chart.draw(data, google.charts.Line.convertOptions(options));
+        for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
+          var intersectionTraffic = arrOfIntersectionTraffic[i];
+          var detectionTime = intersectionTraffic.detectedOn;
+          var detectedCarsCount = intersectionTraffic.carQuantity;
+          var detectedPeopleCount = 0; //intersectionTraffic.peopleQuantity;
 
-      // var options = {
-      //   title: 'Number of Cars and Pedestrians using the Intersection',
-      //   curveType: 'function',
-      //   legend: { position: 'bottom' },
-      //   width: '100%',
-      //   hAxis: {
-      //     title: "Time",
-      //     //direction: -1,
-      //     slantedText: true,
-      //     slantedTextAngle: 30
-      //   }
-      // };
+          data.addRow([detectionTime, detectedCarsCount, detectedPeopleCount]);
+        }
 
-      // var chart = new google.visualization.LineChart(document.getElementById('chart_time_series'));
+        var options = {
+          chart: {
+            title: 'All Cars and Pedestrian Activity',
+            subtitle: 'in number of crossings at any given time'
+          },
+          width: '100%',
+          height: 300
+        };
 
-      // chart.draw(data, options);
+        var chart = new google.charts.Line(document.getElementById('chart_time_series'));
+
+        chart.draw(data, google.charts.Line.convertOptions(options));
+      });
+    }
+
+    function plotIntersectionTrafficForecastsData() {
+      // for all intersections
+      var url = webServicesURL + "/forecast";
+      if (intersectionName != null) {
+        // for specific intersection
+        url = webServicesURL + "/forecast/" + intersectionName
+      }
+
+      $('#nav-forecast-tab').text('Forecasts');
+      if (intersectionName != null) {
+        $('#nav-forecast-tab').text('Forecasts for "' + intersectionName + '"');
+      }
+
+      $.getJSON(url, function (jsonForecastData) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'Time');
+        data.addColumn('number', 'Num of Cars (Actual)');
+        data.addColumn('number', 'Num of Cars (Forecasted)');
+        data.addColumn('number', 'Num of Pedestrians (Actual)');
+        data.addColumn('number', 'Num of Pedestrians (Forecasted)');
+
+        var arrCarsDataActual = jsonForecastData.cars.original;
+        var arrCarsDataForecasted = jsonForecastData.cars.data;
+        var arrPeopleDataActual = jsonForecastData.people.original;
+        var arrPeopleDataForecasted = jsonForecastData.people.data;
+        for (var i = 0; i < jsonForecastData.cars.data.length; i++) {
+          var carsDataActual = arrCarsDataActual[i];
+          var carsDataForecasted = arrCarsDataForecasted[i];
+          var peopleDataActual = arrPeopleDataActual[i];
+          var peopleDataForecasted = arrPeopleDataForecasted[i];
+
+          var dateAndTime = new Date(carsDataActual[0]);
+          var carsCountActual = carsDataActual[1];
+          var carsCountForecasted = carsDataForecasted[1];
+          var peopleCountActual = peopleDataActual[1];
+          var peopleCountForecasted = peopleDataForecasted[1];
+
+          data.addRow([dateAndTime, carsCountActual, carsCountForecasted, peopleCountActual, peopleCountForecasted]);
+        }
+
+        var options = {
+          chart: {
+            title: 'Forecasts for Cars and Pedestrian Activity',
+            subtitle: 'in actual and forecasted number of crossings at any given time'
+          },
+          width: '100%',
+          height: 300
+        };
+
+        var chart = new google.charts.Line(document.getElementById('chart_time_series_forecast'));
+
+        chart.draw(data, google.charts.Line.convertOptions(options));
+      });
     }
   </script>
 </head>
@@ -173,7 +220,7 @@
 
   <div class="card">
     <div class="card-header">
-      Map
+      All smart traffic monitoring sensors in San Jose (click on any intersection to view its dashboard)
     </div>
     <div class="card-body p-0">
       <div id="google_maps_area"></div>
@@ -181,17 +228,17 @@
   </div>
 
   <nav class="nav nav-tabs" id="myTab" role="tablist">
-    <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-statisctics" role="tab" aria-controls="nav-statisctics"
-      aria-selected="true">Statistics</a>
-    <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-forecast" role="tab" aria-controls="nav-forecast"
-      aria-selected="false">Forecast</a>
+    <a class="nav-item nav-link active" id="nav-dashboard-tab" data-toggle="tab" href="#nav-dashboard" role="tab" aria-controls="nav-dashboard"
+      aria-selected="true">Traffic Activity Dashboard</a>
+    <a class="nav-item nav-link" id="nav-forecast-tab" data-toggle="tab" href="#nav-forecast" role="tab" aria-controls="nav-forecast"
+      aria-selected="false">Forecasts</a>
   </nav>
   <div class="tab-content p-3" id="nav-tabContent">
-    <div class="tab-pane fade show active" id="nav-statisctics" role="tabpanel" aria-labelledby="nav-statisctics-tab">
+    <div class="tab-pane fade show active" id="nav-dashboard" role="tabpanel" aria-labelledby="nav-dashboard-tab">
       <div id="chart_time_series"></div>
     </div>
     <div class="tab-pane fade" id="nav-forecast" role="tabpanel" aria-labelledby="nav-forecast-tab">
-      <div id="forecast"></div>
+      <div id="chart_time_series_forecast"></div>
     </div>
   </div>
 
