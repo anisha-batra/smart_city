@@ -12,13 +12,9 @@
     crossorigin="anonymous">
 
   <style>
-    #google_maps_row {
-      /*min-height: 300px;*/
-    }
-
     #google_maps_area {
       width: 100%;
-      height: 200px;
+      height: 150px;
     }
   </style>
 
@@ -39,7 +35,7 @@
     var googleMap;
 
     $(document).ready(function () {
-      google.charts.load('current', { 'packages': ['line'] });
+      google.charts.load('current', { 'packages': ['line', 'corechart'] });
       google.charts.setOnLoadCallback(drawGoogleCharts);
     });
 
@@ -112,33 +108,79 @@
       }
 
       $.getJSON(url, function (arrOfIntersectionTraffic) {
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Time');
-        data.addColumn('number', 'Num of Cars');
-        data.addColumn('number', 'Num of Pedestrians');
-
-        for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
-          var intersectionTraffic = arrOfIntersectionTraffic[i];
-          var detectionTime = intersectionTraffic.detectedOn;
-          var detectedCarsCount = intersectionTraffic.carQuantity;
-          var detectedPeopleCount = 0; //intersectionTraffic.peopleQuantity;
-
-          data.addRow([detectionTime, detectedCarsCount, detectedPeopleCount]);
-        }
-
-        var options = {
-          chart: {
-            title: 'All Cars and Pedestrian Activity',
-            subtitle: 'in number of crossings at any given time'
-          },
-          width: '100%',
-          height: 300
-        };
-
-        var chart = new google.charts.Line(document.getElementById('chart_time_series'));
-
-        chart.draw(data, google.charts.Line.convertOptions(options));
+        drawIntersectionTrafficData_LineChart(arrOfIntersectionTraffic);
+        drawIntersectionTrafficData_PieChart(arrOfIntersectionTraffic);
       });
+    }
+
+    function drawIntersectionTrafficData_LineChart(arrOfIntersectionTraffic) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Time');
+      data.addColumn('number', 'Num of Cars');
+      data.addColumn('number', 'Num of Pedestrians');
+
+      for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
+        var intersectionTraffic = arrOfIntersectionTraffic[i];
+        var detectionTime = intersectionTraffic.detectedOn;
+        var detectedCarsCount = intersectionTraffic.carQuantity;
+        var detectedPeopleCount = 0; //intersectionTraffic.peopleQuantity;
+
+        data.addRow([detectionTime, detectedCarsCount, detectedPeopleCount]);
+      }
+
+      var options = {
+        chart: {
+          title: 'All Cars and Pedestrian Activity',
+          subtitle: 'in number of crossings at any given time'
+        },
+        width: '100%',
+        height: 350
+      };
+
+      var chart = new google.charts.Line(document.getElementById('chartarea_intersection_traffic_data_line_chart'));
+
+      chart.draw(data, google.charts.Line.convertOptions(options));
+    }
+
+    function drawIntersectionTrafficData_PieChart(arrOfIntersectionTraffic) {
+      var carsTotalCount = 0;
+      var peopleTotalCount = 0;
+
+      for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
+        carsTotalCount += arrOfIntersectionTraffic[i].carQuantity;
+        peopleTotalCount += arrOfIntersectionTraffic[i].peopleQuantity;
+      }
+
+      var data = google.visualization.arrayToDataTable([
+        ['Traffic Type', 'Total Crossings'],
+        ['Cars', carsTotalCount],
+        ['Pedestrians', peopleTotalCount]
+      ]);
+
+      var options = {
+        //title: 'Traffic Distribution',
+        pieHole: 0.5,
+        width: '100%',
+        legend: 'none',
+        pieSliceText: 'percentage',
+        pieSliceTextStyle: {
+          color: 'black',
+        },
+        pieStartAngle: 100,
+        legend: {
+          position: 'bottom'
+        },
+        chartArea: {
+          left: 0,
+          top: 10,
+          width: '100%',
+          height: '80%'
+        },
+        height: 350
+      };
+
+      var chart = new google.visualization.PieChart(document.getElementById('chartarea_intersection_traffic_data_pie_chart'));
+      chart.draw(data, options);
     }
 
     function plotIntersectionTrafficForecastsData() {
@@ -187,10 +229,10 @@
             subtitle: 'in actual and forecasted number of crossings at any given time'
           },
           width: '100%',
-          height: 300
+          height: 350
         };
 
-        var chart = new google.charts.Line(document.getElementById('chart_time_series_forecast'));
+        var chart = new google.charts.Line(document.getElementById('chartarea_intersection_traffic_data_forecast_line_chart'));
 
         chart.draw(data, google.charts.Line.convertOptions(options));
       });
@@ -235,10 +277,20 @@
   </nav>
   <div class="tab-content p-3" id="nav-tabContent">
     <div class="tab-pane fade show active" id="nav-dashboard" role="tabpanel" aria-labelledby="nav-dashboard-tab">
-      <div id="chart_time_series"></div>
+      <div class="container-fluid">
+        <div class="row p-0 m-0">
+          <div class="col-3 p-0 m-0">
+            <div id="chartarea_intersection_traffic_data_pie_chart"></div>
+          </div>
+          <div class="col-9 p-0 m-0">
+            <div id="chartarea_intersection_traffic_data_line_chart"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
     <div class="tab-pane fade" id="nav-forecast" role="tabpanel" aria-labelledby="nav-forecast-tab">
-      <div id="chart_time_series_forecast"></div>
+      <div id="chartarea_intersection_traffic_data_forecast_line_chart"></div>
     </div>
   </div>
 
