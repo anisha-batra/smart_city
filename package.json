@@ -1,0 +1,24 @@
+{
+  "name": "smart_city",
+  "version": "1.0.0",
+  "description": "Smart City Dashboard",
+  "main": "server.js",
+  "dependencies": {
+    "timeseries-analysis": "^1.0.12"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anishabatra88/smart_city.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anishabatra88/smart_city/issues"
+  },
+  "homepage": "https://github.com/anishabatra88/smart_city#readme"
+}

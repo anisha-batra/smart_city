@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>Smart City - Traffic Analysis</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
+    crossorigin="anonymous">
+
+  <style>
+    #google_maps_row {
+      /*min-height: 300px;*/
+    }
+
+    #google_maps_area {
+      width: 100%;
+      height: 200px;
+    }
+  </style>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+  <!-- Get the js file from ./dist/d3-foresight.min.js. The package is also -->
+  <!-- available in npm -->
+  <!-- <script src="./d3-foresight.min.js"></script> -->
+
+  <script type="text/javascript">
+    var webServicesURL = "http://ec2-13-57-24-156.us-west-1.compute.amazonaws.com:3000";
+    var googleMap;
+
+    $(document).ready(function () {
+      google.charts.load('current', { 'packages': ['line'] });
+      google.charts.setOnLoadCallback(drawGoogleCharts);
+    });
+
+    function initMap() {
+      var uluru = { lat: 37.33765, lng: -121.887466 };
+      googleMap = new google.maps.Map(document.getElementById('google_maps_area'), {
+        zoom: 16,
+        center: uluru
+      });
+
+      showIntersectionMarkersOnMap();
+    }
+
+    function showIntersectionMarkersOnMap() {
+      $.getJSON(webServicesURL + "/getAllIntersections", function (data) {
+        var markers = [];
+
+        for (var i = 0; i < data.length; i++) {
+          var intersection = data[i];
+          var intersectionLocation = {
+            lat: intersection.latitude,
+            lng: intersection.longitude,
+          };
+
+          marker = new google.maps.Marker({
+            position: intersectionLocation,
+            map: googleMap,
+            title: intersection.intersectionName
+          });
+
+          google.maps.event.addListener(marker, 'click', function (marker, i) {
+            return function () {
+              plotIntersectionTrafficDataAtSpecifiedIntersection(marker.title);
+            }
+          }(marker, i));
+
+          markers.push(marker);
+        }
+
+        var bounds = new google.maps.LatLngBounds();
+        for (var i = 0; i < markers.length; i++) {
+          bounds.extend(markers[i].getPosition());
+        }
+
+        googleMap.fitBounds(bounds);
+      });
+    }
+
+    function drawGoogleCharts() {
+      plotAllIntersectionTrafficData();
+    }
+
+    function plotAllIntersectionTrafficData() {
+      $.getJSON(webServicesURL + "/getAllTrafficDetections", function (data) {
+        plotTrafficIntersectionData(data);
+      });
+    }
+
+    function plotIntersectionTrafficDataAtSpecifiedIntersection(intersectionName) {
+      $.getJSON(webServicesURL + "/getAllDetectionsAtIntersection/" + intersectionName, function (data) {
+        plotTrafficIntersectionData(data);
+      });
+    }
+
+    function plotTrafficIntersectionData(arrOfIntersectionTraffic) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Time');
+      data.addColumn('number', 'Num of Cars');
+      data.addColumn('number', 'Num of Pedestrians');
+
+      for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
+        var intersectionTraffic = arrOfIntersectionTraffic[i];
+        var detectionTime = intersectionTraffic.detectedOn;
+        var detectedCarsCount = intersectionTraffic.carQuantity;
+        var detectedPeopleCount = 0; //intersectionTraffic.peopleQuantity;
+
+        data.addRow([detectionTime, detectedCarsCount, detectedPeopleCount]);
+      }
+
+      var options = {
+        chart: {
+          title: 'Box Office Earnings in First Two Weeks of Opening',
+          subtitle: 'in millions of dollars (USD)'
+        },
+        width: '100%',
+        height: 300
+      };
+
+      var chart = new google.charts.Line(document.getElementById('chart_time_series'));
+
+      chart.draw(data, google.charts.Line.convertOptions(options));
+
+      // var options = {
+      //   title: 'Number of Cars and Pedestrians using the Intersection',
+      //   curveType: 'function',
+      //   legend: { position: 'bottom' },
+      //   width: '100%',
+      //   hAxis: {
+      //     title: "Time",
+      //     //direction: -1,
+      //     slantedText: true,
+      //     slantedTextAngle: 30
+      //   }
+      // };
+
+      // var chart = new google.visualization.LineChart(document.getElementById('chart_time_series'));
+
+      // chart.draw(data, options);
+    }
+  </script>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#">
+      <img src="images/logo.png" height="30" class="d-inline-block align-top" alt=""> Smart City - Traffic Analysis
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Dashboard
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="card">
+    <div class="card-header">
+      Map
+    </div>
+    <div class="card-body p-0">
+      <div id="google_maps_area"></div>
+    </div>
+  </div>
+
+  <nav class="nav nav-tabs" id="myTab" role="tablist">
+    <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-statisctics" role="tab" aria-controls="nav-statisctics"
+      aria-selected="true">Statistics</a>
+    <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-forecast" role="tab" aria-controls="nav-forecast"
+      aria-selected="false">Forecast</a>
+  </nav>
+  <div class="tab-content p-3" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-statisctics" role="tabpanel" aria-labelledby="nav-statisctics-tab">
+      <div id="chart_time_series"></div>
+    </div>
+    <div class="tab-pane fade" id="nav-forecast" role="tabpanel" aria-labelledby="nav-forecast-tab">
+      <div id="forecast"></div>
+    </div>
+  </div>
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+    crossorigin="anonymous"></script>
+  </script>
+
+  <!-- Google Maps -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCuv-3TNJa0XRwcaEozNb-85NFIWWUrJ60&callback=initMap"></script>
+
+  <!-- Google Charts -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</body>
+
+</html>
