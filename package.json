@@ -4,6 +4,8 @@
   "description": "Smart City Dashboard",
   "main": "server.js",
   "dependencies": {
+    "express": "^4.16.2",
+    "path": "^0.12.7",
     "timeseries-analysis": "^1.0.12"
   },
   "devDependencies": {},
