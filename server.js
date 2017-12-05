@@ -326,42 +326,42 @@ app.get('/reset', function (req, res) {
     res.send({});
 });
 
-app.get('/addDummyData', function (req, res) {
-    console.log('Executing Web Service: Get All Detections At Intersection');
+// app.get('/addDummyData', function (req, res) {
+//     console.log('Executing Web Service: Get All Detections At Intersection');
 
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-    var intersectionName = 'SantaClara_4th';
+//     var intersectionName = 'SantaClara_4th';
 
-    MongoClient.connect(url, function (err, db) {
-        assert.equal(null, err);
-        db.collection('intersection_traffic').find({ 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
-            assert.equal(err, null);
-            //console.log("- All Traffic Detections At Intersection = " + intersectionName + ": " + arrayOfDocs);
-            console.log("- All Traffic Detections At Intersection = " + intersectionName + ", Records Count: " + arrayOfDocs.length);
+//     MongoClient.connect(url, function (err, db) {
+//         assert.equal(null, err);
+//         db.collection('intersection_traffic').find({ 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
+//             assert.equal(err, null);
+//             //console.log("- All Traffic Detections At Intersection = " + intersectionName + ": " + arrayOfDocs);
+//             console.log("- All Traffic Detections At Intersection = " + intersectionName + ", Records Count: " + arrayOfDocs.length);
 
-            var arrDummyDocs = [];
-            for (var i=0; i<arrayOfDocs.length; i++) {
-                var dummyRecord = {
-                    "intersectionName": 'CVS',
-                    "detectedOn": arrayOfDocs[i].detectedOn,
-                    "carQuantity": arrayOfDocs[i].carQuantity,
-                    "peopleQuantity": (arrayOfDocs[i].carQuantity | 0) * 4
-                };
-                arrDummyDocs.push(dummyRecord);
-            }
+//             var arrDummyDocs = [];
+//             for (var i=0; i<arrayOfDocs.length; i++) {
+//                 var dummyRecord = {
+//                     "intersectionName": 'CVS',
+//                     "detectedOn": arrayOfDocs[i].detectedOn,
+//                     "carQuantity": arrayOfDocs[i].carQuantity,
+//                     "peopleQuantity": (arrayOfDocs[i].carQuantity | 0) * 4
+//                 };
+//                 arrDummyDocs.push(dummyRecord);
+//             }
 
-            db.collection('intersection_traffic').insertMany(arrDummyDocs, function (err, result) {
-                assert.equal(err, null);
-                res.send({});
-            });
+//             db.collection('intersection_traffic').insertMany(arrDummyDocs, function (err, result) {
+//                 assert.equal(err, null);
+//                 res.send({});
+//             });
 
-            res.setHeader('Content-Type', 'application/json');
-            res.json(arrayOfDocs);
-        });
-    });
-});
+//             res.setHeader('Content-Type', 'application/json');
+//             res.json(arrayOfDocs);
+//         });
+//     });
+// });
 
 // Public folder
 app.use(express.static(path.join(__dirname, 'www')));

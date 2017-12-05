@@ -199,10 +199,10 @@
       $.getJSON(url, function (jsonForecastData) {
         var data = new google.visualization.DataTable();
         data.addColumn('datetime', 'Time');
-        data.addColumn('number', 'Num of Cars (Forecasted)');
         data.addColumn('number', 'Num of Cars (Actual)');
-        data.addColumn('number', 'Num of Pedestrians (Forecasted)');
+        data.addColumn('number', 'Num of Cars (Forecasted)');
         data.addColumn('number', 'Num of Pedestrians (Actual)');
+        data.addColumn('number', 'Num of Pedestrians (Forecasted)');
 
         var arrCarsDataActual = jsonForecastData.cars.original;
         var arrCarsDataForecasted = jsonForecastData.cars.data;
@@ -220,7 +220,12 @@
           var peopleCountActual = peopleDataActual[1];
           var peopleCountForecasted = peopleDataForecasted[1];
 
-          data.addRow([dateAndTime, carsCountForecasted, carsCountActual, peopleCountForecasted, peopleCountActual]);
+          if (i < jsonForecastData.cars.data.length * 0.25) {
+            carsCountForecasted = null;
+            peopleCountForecasted = null;
+          }
+
+          data.addRow([dateAndTime, carsCountActual, carsCountForecasted, peopleCountActual, peopleCountForecasted]);
         }
 
         var options = {
