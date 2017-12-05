@@ -64,7 +64,8 @@ app.get('/getAllIntersections', function (req, res) {
         assert.equal(null, err);
         db.collection('intersections').find({}).toArray(function (err, arrayOfDocs) {
             assert.equal(err, null);
-            console.log("- All Intersections: " + arrayOfDocs);
+            //console.log("- All Intersections: " + arrayOfDocs);
+            console.log("- All Intersections, Records Count: " + arrayOfDocs.length);
 
             res.setHeader('Content-Type', 'application/json');
             res.json(arrayOfDocs);
@@ -141,7 +142,8 @@ app.get('/getAllTrafficDetections', function (req, res) {
         assert.equal(null, err);
         db.collection('intersection_traffic').find({}).toArray(function (err, arrayOfDocs) {
             assert.equal(err, null);
-            console.log("- All Detecttion: " + arrayOfDocs);
+            //console.log("- All Detecttion: " + arrayOfDocs);
+            console.log("- All Traffic Detections, Records Count: " + arrayOfDocs.length);
 
             res.setHeader('Content-Type', 'application/json');
             res.json(arrayOfDocs);
@@ -187,7 +189,8 @@ app.get('/getAllDetectionsAtIntersection/:intersectionName', function (req, res)
         assert.equal(null, err);
         db.collection('intersection_traffic').find({ 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
             assert.equal(err, null);
-            console.log("- All Detections At Intersection = " + intersectionName + ": " + arrayOfDocs);
+            //console.log("- All Traffic Detections At Intersection = " + intersectionName + ": " + arrayOfDocs);
+            console.log("- All Traffic Detections At Intersection = " + intersectionName + ", Records Count: " + arrayOfDocs.length);
 
             res.setHeader('Content-Type', 'application/json');
             res.json(arrayOfDocs);
