@@ -122,8 +122,8 @@
       for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
         var intersectionTraffic = arrOfIntersectionTraffic[i];
         var detectionTime = intersectionTraffic.detectedOn;
-        var detectedCarsCount = intersectionTraffic.carQuantity;
-        var detectedPeopleCount = 0; //intersectionTraffic.peopleQuantity;
+        var detectedCarsCount = intersectionTraffic.carQuantity | 0;
+        var detectedPeopleCount = intersectionTraffic.peopleQuantity | 0;
 
         data.addRow([detectionTime, detectedCarsCount, detectedPeopleCount]);
       }
@@ -147,8 +147,8 @@
       var peopleTotalCount = 0;
 
       for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
-        carsTotalCount += arrOfIntersectionTraffic[i].carQuantity;
-        peopleTotalCount += arrOfIntersectionTraffic[i].peopleQuantity;
+        carsTotalCount += arrOfIntersectionTraffic[i].carQuantity | 0;
+        peopleTotalCount += arrOfIntersectionTraffic[i].peopleQuantity | 0;
       }
 
       var data = google.visualization.arrayToDataTable([

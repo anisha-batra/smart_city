@@ -97,7 +97,6 @@ app.get('/getIntersectionByName/:intersectionName', function (req, res) {
 
 // ------------------------------------------------------------------
 // WEB SERVICE - RECORD CAR/PEDESTRIAN DETECTION
-//               (Create One Record Per Detection)
 //               Foreign Key : Intersection Name
 // ------------------------------------------------------------------
 app.post('/addDetectedTraffic', function (req, res) {
@@ -113,9 +112,9 @@ app.post('/addDetectedTraffic', function (req, res) {
 
     var record = {
         "intersectionName": req.body.intersectionName,
-        "detectedTrafficType": req.body.detectedTrafficType,
         "detectedOn": req.body.detectedOn,
-        "carQuantity": req.body.carQuantity
+        "carQuantity": req.body.carQuantity,
+        "peopleQuantity": req.body.peopleQuantity
     };
 
     MongoClient.connect(url, function (err, db) {
@@ -150,28 +149,28 @@ app.get('/getAllTrafficDetections', function (req, res) {
     });
 });
 
-// ------------------------------------------------------------------
-// WEB SERVICE - GET ALL DETECTIONS OF TRAFFIC TYPE
-// ------------------------------------------------------------------
-app.get('/getAllDetectionsOfType/:trafficType', function (req, res) {
-    console.log('Executing Web Service: Get All Detections Of Type');
+// // ------------------------------------------------------------------
+// // WEB SERVICE - GET ALL DETECTIONS OF TRAFFIC TYPE
+// // ------------------------------------------------------------------
+// app.get('/getAllDetectionsOfType/:trafficType', function (req, res) {
+//     console.log('Executing Web Service: Get All Detections Of Type');
 
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-    var trafficType = req.params.trafficType;
+//     var trafficType = req.params.trafficType;
 
-    MongoClient.connect(url, function (err, db) {
-        assert.equal(null, err);
-        db.collection('intersection_traffic').find({ 'detectedTrafficType': trafficType }).toArray(function (err, arrayOfDocs) {
-            assert.equal(err, null);
-            console.log("- All Detection Of Type = " + trafficType + ": " + arrayOfDocs);
+//     MongoClient.connect(url, function (err, db) {
+//         assert.equal(null, err);
+//         db.collection('intersection_traffic').find({ 'detectedTrafficType': trafficType }).toArray(function (err, arrayOfDocs) {
+//             assert.equal(err, null);
+//             console.log("- All Detection Of Type = " + trafficType + ": " + arrayOfDocs);
 
-            res.setHeader('Content-Type', 'application/json');
-            res.json(arrayOfDocs);
-        });
-    });
-});
+//             res.setHeader('Content-Type', 'application/json');
+//             res.json(arrayOfDocs);
+//         });
+//     });
+// });
 
 // ------------------------------------------------------------------
 // WEB SERVICE - GET ALL DETECTIONS AT SPECIFIED INTERSECTION
@@ -196,29 +195,29 @@ app.get('/getAllDetectionsAtIntersection/:intersectionName', function (req, res)
     });
 });
 
-// ------------------------------------------------------------------
-// WEB SERVICE - GET ALL DETECTIONS OF TYPE AT INTERSECTION
-// ------------------------------------------------------------------
-app.get('/getAllDetectionsOfTypeAtIntersection/:trafficType/:intersectionName', function (req, res) {
-    console.log('Executing Web Service: Get All Detections At Intersection');
+// // ------------------------------------------------------------------
+// // WEB SERVICE - GET ALL DETECTIONS OF TYPE AT INTERSECTION
+// // ------------------------------------------------------------------
+// app.get('/getAllDetectionsOfTypeAtIntersection/:trafficType/:intersectionName', function (req, res) {
+//     console.log('Executing Web Service: Get All Detections At Intersection');
 
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
-    var trafficType = req.params.trafficType;
-    var intersectionName = req.params.intersectionName;
+//     var trafficType = req.params.trafficType;
+//     var intersectionName = req.params.intersectionName;
 
-    MongoClient.connect(url, function (err, db) {
-        assert.equal(null, err);
-        db.collection('intersection_traffic').find({ 'detectedTrafficType': trafficType, 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
-            assert.equal(err, null);
-            console.log("- All Detections Of Type = " + trafficType + " At Intersection = " + intersectionName + ": " + arrayOfDocs);
+//     MongoClient.connect(url, function (err, db) {
+//         assert.equal(null, err);
+//         db.collection('intersection_traffic').find({ 'detectedTrafficType': trafficType, 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
+//             assert.equal(err, null);
+//             console.log("- All Detections Of Type = " + trafficType + " At Intersection = " + intersectionName + ": " + arrayOfDocs);
 
-            res.setHeader('Content-Type', 'application/json');
-            res.json(arrayOfDocs);
-        });
-    });
-});
+//             res.setHeader('Content-Type', 'application/json');
+//             res.json(arrayOfDocs);
+//         });
+//     });
+// });
 
 // ------------------------------------------------------------------
 // WEB SERVICE - FORECAST
