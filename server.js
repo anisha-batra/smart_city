@@ -187,7 +187,7 @@ app.get('/getAllDetectionsAtIntersection/:intersectionName', function (req, res)
 
     MongoClient.connect(url, function (err, db) {
         assert.equal(null, err);
-        db.collection('intersection_traffic').find({ 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
+        db.collection('intersection_traffic').find({ 'intersectionName': intersectionName, 'detectedOn': { $lte: 1512447153 } }).toArray(function (err, arrayOfDocs) {
             assert.equal(err, null);
             //console.log("- All Traffic Detections At Intersection = " + intersectionName + ": " + arrayOfDocs);
             console.log("- All Traffic Detections At Intersection = " + intersectionName + ", Records Count: " + arrayOfDocs.length);
@@ -236,6 +236,7 @@ app.get('/forecast/:intersectionName', function (req, res) {
     var intersectionName = req.params.intersectionName;
     if (intersectionName != 'all') {
         searchFilters['intersectionName'] = intersectionName;
+        searchFilters['detectedOn'] = { $lte: 1512447153 };
     }
 
     MongoClient.connect(url, function (err, db) {
