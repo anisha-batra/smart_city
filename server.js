@@ -242,7 +242,8 @@ app.get('/forecast/:intersectionName', function (req, res) {
         assert.equal(null, err);
         db.collection('intersection_traffic').find(searchFilters).toArray(function (err, arrayOfDocs) {
             assert.equal(err, null);
-            console.log("- All Detecttion: " + arrayOfDocs);
+            //console.log("- All Detecttion: " + arrayOfDocs);
+            console.log("- All Traffic Detections At Intersection = " + intersectionName + ", Records Count: " + arrayOfDocs.length);
 
             var taCars = new timeseries.main(timeseries.adapter.fromDB(arrayOfDocs, {
                 date: 'detectedOn',     // Name of the property containing the Date (must be compatible with new Date(date) )
