@@ -255,20 +255,19 @@ app.get('/forecast/:intersectionName', function (req, res) {
             }));
 
             // Now we remove the noise from the data and save that noiseless data so we can display it on the chart
-            taCars.smoother({ period: 4 }).save('smoothed');
-            taPeople.smoother({ period: 4 }).save('smoothed');
+            //taCars.smoother({ period: 4 }).save('smoothed');
+            //taPeople.smoother({ period: 4 }).save('smoothed');
 
             // Find the best settings for the forecasting:
-            var bestSettingsCars = taCars.regression_forecast_optimize(); // returns { MSE: 0.05086675645862624, method: 'ARMaxEntropy', degree: 4, sample: 20 }
+            //var bestSettingsCars = taCars.regression_forecast_optimize(); // returns { MSE: 0.05086675645862624, method: 'ARMaxEntropy', degree: 4, sample: 20 }
             // var bestSettingsPeople = taPeople.regression_forecast_optimize(); // returns { MSE: 0.05086675645862624, method: 'ARMaxEntropy', degree: 4, sample: 20 }
 
             // Apply those settings to forecast the n+1 value
-            taCars.sliding_regression_forecast({
-                sample: bestSettingsCars.sample,
-                degree: bestSettingsCars.degree,
-                method: bestSettingsCars.method
-            });
-            console.log(JSON.stringify(bestSettingsCars));
+            // taCars.sliding_regression_forecast({
+            //     sample: bestSettingsCars.sample,
+            //     degree: bestSettingsCars.degree,
+            //     method: bestSettingsCars.method
+            // });
 
             // // Apply those settings to forecast the n+1 value
             // taPeople.sliding_regression_forecast({
@@ -282,7 +281,9 @@ app.get('/forecast/:intersectionName', function (req, res) {
             // We are going to use the past 20 datapoints to predict the n+1 value, with an AR degree of 5 (default)
             // The default method used is Max Entropy
             //taCars.sliding_regression_forecast({ sample: sampleSize, degree: 5, method: 'ARLeastSquare' });
-            taPeople.sliding_regression_forecast({ sample: sampleSize, degree: 5, method: 'ARLeastSquare' });
+            //taPeople.sliding_regression_forecast({ sample: sampleSize, degree: 5, method: 'ARLeastSquare' });
+            taCars.sliding_regression_forecast({ sample: sampleSize, degree: 18, method: 'ARMaxEntropy' });
+            taPeople.sliding_regression_forecast({ sample: sampleSize, degree: 18, method: 'ARMaxEntropy' });
 
             // Now we chart the results, comparing the the original data.
             // Since we are using the past 20 datapoints to predict the next one, the forecasting only start at datapoint #21. To show that on the chart, we are displaying a red dot at the #21st datapoint:
@@ -291,7 +292,7 @@ app.get('/forecast/:intersectionName', function (req, res) {
             //console.log(JSON.stringify(t));
 
             var resposeData = {
-                "intersectionName": null,
+                "intersectionName": intersectionName,
                 "cars": taCars,
                 "people": taPeople
             };
@@ -323,6 +324,43 @@ app.get('/reset', function (req, res) {
     });
 
     res.send({});
+});
+
+app.get('/addDummyData', function (req, res) {
+    console.log('Executing Web Service: Get All Detections At Intersection');
+
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+    var intersectionName = 'SantaClara_4th';
+
+    MongoClient.connect(url, function (err, db) {
+        assert.equal(null, err);
+        db.collection('intersection_traffic').find({ 'intersectionName': intersectionName }).toArray(function (err, arrayOfDocs) {
+            assert.equal(err, null);
+            //console.log("- All Traffic Detections At Intersection = " + intersectionName + ": " + arrayOfDocs);
+            console.log("- All Traffic Detections At Intersection = " + intersectionName + ", Records Count: " + arrayOfDocs.length);
+
+            var arrDummyDocs = [];
+            for (var i=0; i<arrayOfDocs.length; i++) {
+                var dummyRecord = {
+                    "intersectionName": 'CVS',
+                    "detectedOn": arrayOfDocs[i].detectedOn,
+                    "carQuantity": arrayOfDocs[i].carQuantity,
+                    "peopleQuantity": (arrayOfDocs[i].peopleQuantity | 0) / 4
+                };
+                arrDummyDocs.push(dummyRecord);
+            }
+
+            db.collection('intersection_traffic').insertMany(arrDummyDocs, function (err, result) {
+                assert.equal(err, null);
+                res.send({});
+            });
+
+            res.setHeader('Content-Type', 'application/json');
+            res.json(arrayOfDocs);
+        });
+    });
 });
 
 // Public folder
