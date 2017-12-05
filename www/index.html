@@ -121,7 +121,7 @@
 
       for (var i = 0; i < arrOfIntersectionTraffic.length; i++) {
         var intersectionTraffic = arrOfIntersectionTraffic[i];
-        var detectionTime = intersectionTraffic.detectedOn;
+        var detectionTime = new Date(intersectionTraffic.detectedOn);
         var detectedCarsCount = intersectionTraffic.carQuantity | 0;
         var detectedPeopleCount = intersectionTraffic.peopleQuantity | 0;
 
