@@ -276,7 +276,7 @@ app.get('/forecast/:intersectionName', function (req, res) {
             //     method: bestSettingsPeople.method
             // });
 
-            var sampleSize = Math.floor(arrayOfDocs.length * 0.50);
+            var sampleSize = Math.floor(arrayOfDocs.length * 0.25);
 
             // We are going to use the past 20 datapoints to predict the n+1 value, with an AR degree of 5 (default)
             // The default method used is Max Entropy
