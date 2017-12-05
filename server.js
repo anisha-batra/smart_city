@@ -347,7 +347,7 @@ app.get('/addDummyData', function (req, res) {
                     "intersectionName": 'CVS',
                     "detectedOn": arrayOfDocs[i].detectedOn,
                     "carQuantity": arrayOfDocs[i].carQuantity,
-                    "peopleQuantity": (arrayOfDocs[i].peopleQuantity | 0) * 4
+                    "peopleQuantity": (arrayOfDocs[i].carQuantity | 0) * 4
                 };
                 arrDummyDocs.push(dummyRecord);
             }
