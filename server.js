@@ -254,12 +254,34 @@ app.get('/forecast/:intersectionName', function (req, res) {
                 value: 'peopleQuantity'     // Name of the property containign the value. here we'll use the "close" price.
             }));
 
+            // Now we remove the noise from the data and save that noiseless data so we can display it on the chart
+            taCars.smoother({ period: 4 }).save('smoothed');
+            taPeople.smoother({ period: 4 }).save('smoothed');
+
+            // Find the best settings for the forecasting:
+            var bestSettingsCars = taCars.regression_forecast_optimize(); // returns { MSE: 0.05086675645862624, method: 'ARMaxEntropy', degree: 4, sample: 20 }
+            var bestSettingsPeople = taPeople.regression_forecast_optimize(); // returns { MSE: 0.05086675645862624, method: 'ARMaxEntropy', degree: 4, sample: 20 }
+
+            // Apply those settings to forecast the n+1 value
+            taCars.sliding_regression_forecast({
+                sample: bestSettingsCars.sample,
+                degree: bestSettingsCars.degree,
+                method: bestSettingsCars.method
+            });
+
+            // Apply those settings to forecast the n+1 value
+            taPeople.sliding_regression_forecast({
+                sample: bestSettingsPeople.sample,
+                degree: bestSettingsPeople.degree,
+                method: bestSettingsPeople.method
+            });
+
             var sampleSize = Math.floor(arrayOfDocs.length * 0.75);
 
             // We are going to use the past 20 datapoints to predict the n+1 value, with an AR degree of 5 (default)
             // The default method used is Max Entropy
-            taCars.sliding_regression_forecast({ sample: sampleSize, degree: 5, method: 'ARLeastSquare' });
-            taPeople.sliding_regression_forecast({ sample: sampleSize, degree: 5, method: 'ARLeastSquare' });
+            //taCars.sliding_regression_forecast({ sample: sampleSize, degree: 5, method: 'ARLeastSquare' });
+            //taPeople.sliding_regression_forecast({ sample: sampleSize, degree: 5, method: 'ARLeastSquare' });
 
             // Now we chart the results, comparing the the original data.
             // Since we are using the past 20 datapoints to predict the next one, the forecasting only start at datapoint #21. To show that on the chart, we are displaying a red dot at the #21st datapoint:
