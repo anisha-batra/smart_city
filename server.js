@@ -256,13 +256,14 @@ app.get('/forecast/:intersectionName', function (req, res) {
             }));
 
             // Now we remove the noise from the data and save that noiseless data so we can display it on the chart
-            //taCars.smoother({ period: 4 }).save('smoothed');
+            taCars.smoother({ period: 4 }).save('smoothed');
             //taPeople.smoother({ period: 4 }).save('smoothed');
 
             // Find the best settings for the forecasting:
-            //var bestSettingsCars = taCars.regression_forecast_optimize(); // returns { MSE: 0.05086675645862624, method: 'ARMaxEntropy', degree: 4, sample: 20 }
+            var bestSettingsCars = taCars.regression_forecast_optimize(); // returns { MSE: 0.05086675645862624, method: 'ARMaxEntropy', degree: 4, sample: 20 }
             // var bestSettingsPeople = taPeople.regression_forecast_optimize(); // returns { MSE: 0.05086675645862624, method: 'ARMaxEntropy', degree: 4, sample: 20 }
 
+            console.log('Best Car Settings: ' + JSON.stringify(bestSettingsCars));
             // Apply those settings to forecast the n+1 value
             // taCars.sliding_regression_forecast({
             //     sample: bestSettingsCars.sample,
